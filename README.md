@@ -19,3 +19,5 @@ On the next check the testprogram will use those tokens to connect to twitter.
 * merge the content of the website with this file
 * change the website on twitter
 * verify the use of the plugin name
+* redirect all launchpad stuff to this new location
+

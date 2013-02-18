@@ -13,3 +13,9 @@ What? it does some test. It connects to twitter and gets your latest tweets.
 
 You should copy the access_token and access_token_secret to a file named token.
 On the next check the testprogram will use those tokens to connect to twitter.
+
+# todo
+
+* merge the content of the website with this file
+* change the website on twitter
+* verify the use of the plugin name

@@ -31,7 +31,10 @@ When you go to the preferences windows, you will see an url and
 pin to configure the oauth. Open the url in your favorite browser and authenticate the application. After pidgin gets authenticated correctly, you will see a token and a secret when looking at the preferences.
 
 # Questions and more
+<!-- 
 If you have any questions, you can ask them on [launchpad](https://answers.launchpad.net/purple-oauth-twitterstatus)
+-->
+If you have any questions, you can ask them at [the issue section](../../issues/new)
 
 # oauthtest.pl
 What? it does some test. It connects to twitter and gets your latest tweets.

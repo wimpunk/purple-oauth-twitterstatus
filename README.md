@@ -37,16 +37,15 @@ If you have any questions, you can ask them on [launchpad](https://answers.launc
 If you have any questions, you can ask them at [the issue section](../../issues/new)
 
 # oauthtest.pl
+
 What? it does some test. It connects to twitter and gets your latest tweets.
 
 You should copy the access_token and access_token_secret to a file named token.
 On the next check the testprogram will use those tokens to connect to twitter.
 
-
 # todo
-
-- [x] merge the content of the website with this file
-- [ ] change the website on twitter
-- [ ] verify the use of the plugin name
-- [ ] redirect all launchpad stuff to this new location
+<!-- changed to issue syntax back to normal because it only works
+     on issues and stuff. -->
+* verify the use of the plugin name
+* redirect all launchpad stuff to this new location
 

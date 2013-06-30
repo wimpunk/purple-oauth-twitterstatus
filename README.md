@@ -7,7 +7,7 @@ Use a Twitter feed as your purple/pidgin status message.
 Use your Twitter account as your Pidgin status message.  This plugin is based on [pidgin-twitterstatus](http://code.google.com/p/pidgin-twitterstatus) but uses oauth authentication which should be more save since it doesn't need a password.
 
 I decided to work on that version because the pidgin-twitterstatus
-plugin needed a public profile.  Using oauth prevents the need of a public profile or the need to provide your password in every application. </p>
+plugin needed a public profile.  Using oauth prevents the need of a public profile or the need to provide your password in every application. Currently you even have to use oauth. The old one isn't supported anymore.
 
 # Download
 The latest version can be downloaded by pressing the zip-button or you can try [this link](../../archive/master.zip)
@@ -48,4 +48,4 @@ On the next check the testprogram will use those tokens to connect to twitter.
      on issues and stuff. -->
 * verify the use of the plugin name
 * redirect all launchpad stuff to this new location
-
+* make an easier the authentication easier.

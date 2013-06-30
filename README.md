@@ -19,7 +19,7 @@ You need the latest Net::Twitter::Lite module to get it working.
 It depends on the oauth module included in Net::Twitter since 3.00. It's been tested against libnet-twitter-perl included in debian-testing.
 If your linux doesn't support the correct version of Net::Twitter you can install it running
 
-    sudo perl -MCPAN -e 'install Net::Twitter'
+    sudo perl -MCPAN -e 'install Net::Twitter::Lite::WithAPIv1_1'
 
 If you are running windows you can try the instruction found on  
 [this issue](http://code.google.com/p/pidgin-status-to-twitter/issues/detail?id=2)

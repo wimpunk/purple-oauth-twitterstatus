@@ -2,7 +2,8 @@
 # based on http://log.damog.net/2009/05/twitters-oauth-perl/
 # http://stereonaut.net/index.php?s=oauth
 # use Net::Twitter::OAuth;
-use Net::Twitter;
+#use Net::Twitter;
+use Net::Twitter::Lite::WithAPIv1_1;
 use Data::Dumper;
 use Storable;
 
@@ -37,7 +38,7 @@ sub restore_tokens {
 		return ('','');
 	}
 }
-my $client = Net::Twitter->new(
+my $client = Net::Twitter::Lite::WithAPIv1_1->new(
 		traits         => ['API::REST','OAuth'],
 		consumer_key    => "IkU8CVvABj0ZeOQrAQDrvg",
 		consumer_secret => "kDB5lMR0VoQEbLIrbuvLD72j7XrozVgEyHP0q4csc",
@@ -82,7 +83,7 @@ if (not ( $client->authorized )) {
 
 	my($access_token, $access_token_secret) = 
 		$client->request_access_token(verifier => $newpin);
-#save_tokens($access_token, $access_token_secret); # if necessary
+    save_tokens($access_token, $access_token_secret); # if necessary
 	print("access_token: $access_token\n");
 	print("access_token_secret: $access_token_secret\n");
 }
@@ -97,7 +98,7 @@ eval {
 	}
 };
 if ( my $err = $@ ) {
-	die $@ unless blessed $err && $err->isa('Net::Twitter::Error');
+	die $@ unless $err->isa('Net::Twitter::Error');
 
 	warn "HTTP Response Code: ", $err->code, "\n",
 		 "HTTP Message......: ", $err->message, "\n",

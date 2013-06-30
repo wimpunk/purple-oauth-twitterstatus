@@ -2,7 +2,7 @@ use Purple;
 use XML::XPath;
 use XML::XPath::XMLParser;
 # moved to twitter::lite as the normal twitter crashes
-use Net::Twitter::Lite;
+use Net::Twitter::Lite::WithAPIv1_1;
 use POSIX;
 use Data::Dumper;
 
@@ -35,7 +35,7 @@ my $source_agent = 'pidgintwitterstatus';
 
 my $plugin_instance;
 my $active_update_timer;
-my $client = Net::Twitter::Lite->new(
+my $client = Net::Twitter::Lite::WithAPIv1_1->new(
 		#traits         => ['API::REST','OAuth'],
 		consumer_key    => "IkU8CVvABj0ZeOQrAQDrvg",
 		consumer_secret => "kDB5lMR0VoQEbLIrbuvLD72j7XrozVgEyHP0q4csc",
@@ -171,7 +171,7 @@ sub update_status
 		if ( my $err = $@ ) {
 # die $@ unless blessed $err && $err->isa('Net::Twitter::Error');
 			# http://search.cpan.org/~mmims/Net-Twitter-3.10000/lib/Net/Twitter.pod
-			if (blessed $err && $err->isa('Net::Twitter::Error')) {
+			if ($err->isa('Net::Twitter::Error')) {
 
 				Purple::Debug::info($log_category, "HTTP Response Code: ". $err->code. "\n");
 				Purple::Debug::info($log_category, "HTTP Message......: ". $err->message. "\n");
@@ -212,17 +212,18 @@ sub timeout_cb
 
 	if (not ( $client->authorized )) {
 		Purple::Debug::info($log_category, "time_out: not authorized\n");
-		 # not authorized, try the pin
-		 my $pin = Purple::Prefs::get_string("$pref_root/access_pin");	
+		$poll_interval = 30;
+# not authorized, try the pin
+		my $pin = Purple::Prefs::get_string("$pref_root/access_pin");	
 		Purple::Debug::info($log_category, "time_out: try pin $pin\n");
-		 if ($pin) {
-		Purple::Debug::info($log_category, "time_out: pin $pin was set\n");
- 		 my ($access_token, $access_secret) =
-            $client->request_access_token(verifier => $pin);
-		 Purple::Prefs::set_string("$pref_root/access_pin","");
-		 Purple::Prefs::set_string("$pref_root/access_token",$access_token);
-		 Purple::Prefs::set_string("$pref_root/access_secret",$access_secret);
-		 }
+		if ($pin) {
+			Purple::Debug::info($log_category, "time_out: pin $pin was set\n");
+			my ($access_token, $access_secret) =
+				$client->request_access_token(verifier => $pin);
+			Purple::Prefs::set_string("$pref_root/access_pin","");
+			Purple::Prefs::set_string("$pref_root/access_token",$access_token);
+			Purple::Prefs::set_string("$pref_root/access_secret",$access_secret);
+		}
 	} 
 	if ($access_token && $access_secret) {
 		$client->access_token($access_token);

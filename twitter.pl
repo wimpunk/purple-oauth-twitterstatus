@@ -2,26 +2,29 @@ use Purple;
 use XML::XPath;
 use XML::XPath::XMLParser;
 # moved to twitter::lite as the normal twitter crashes
-use Net::Twitter::Lite::WithAPIv1_1;
+#use Net::Twitter::Lite::WithAPIv1_1;
+use Net::Twitter;
 use POSIX;
+use DateTime::Duration;
+use DateTime;
 use Data::Dumper;
 
 use strict;
 use warnings;
 
-# trying to add version to the version number
-my ($VERSION) = q$Revision: 31 $ =~ /(\d+)/;
+## trying to add version to the version number
+#my ($VERSION) = q$Revision: 31 $ =~ /(\d+)/;
 
 our %PLUGIN_INFO = (
     perl_api_version => 2,
     name => 'Twitter Oauth Status',
-    version => '0.4.2-r'.$VERSION,
+    version => '0.4.3',
     summary => 'Use a Twitter feed as your status message.',
     description => 'Use a Twitter feed as your status message.  '
 		. 'Based on the twitter status update from '
 		. 'http://code.google.com/p/pidgin-twitterstatus/',
     author => 'wimpunk <wimpunk\@gmail.com>',
-    url => 'http://www.tisnix.be/twitter-oauth-status/',
+    url => 'https://github.com/wimpunk/purple-oauth-twitterstatus',
     load => 'plugin_load',
     unload => 'plugin_unload',
     prefs_info => 'prefs_info_cb'
@@ -35,8 +38,10 @@ my $source_agent = 'pidgintwitterstatus';
 
 my $plugin_instance;
 my $active_update_timer;
-my $client = Net::Twitter::Lite::WithAPIv1_1->new(
+my $client = Net::Twitter->new(
 		#traits         => ['API::REST','OAuth'],
+		#traits         => [qw/InflateObjects API::RESTv1_1 OAuth/],
+		traits          => [qw/API::RESTv1_1 InflateObjects/],
 		consumer_key    => "IkU8CVvABj0ZeOQrAQDrvg",
 		consumer_secret => "kDB5lMR0VoQEbLIrbuvLD72j7XrozVgEyHP0q4csc",
 		);
@@ -45,7 +50,7 @@ my $client = Net::Twitter::Lite::WithAPIv1_1->new(
 sub find_latest_tweet
 {
 	my ($twitter_statuses) = @_;
-	my $out_status;
+	my $out_status = Purple::Prefs::get_string("$pref_root/timeout_message");
 
 	my $pref_ignore_replies = Purple::Prefs::get_bool("$pref_root/ignore_replies");
 	my $pref_filter_regex = Purple::Prefs::get_string("$pref_root/filter_regex");
@@ -56,6 +61,10 @@ sub find_latest_tweet
 
 	my $last_seen_id = Purple::Prefs::get_int("$pref_root/state/last_seen_id");
 	my $last_seen_id_dirty;
+
+	# calculation duration
+	my $timeout_int = Purple::Prefs::get_int("$pref_root/timeout_time");
+	my $timeout_time = DateTime::Duration->new( hours => $timeout_int);
 	
 	foreach my $this_status (@$twitter_statuses) {
 
@@ -68,8 +77,11 @@ sub find_latest_tweet
 		# my $this_status_message = $this_status->('text')->string_value;
 		my $this_status_message = $this_status->{'text'};
 		Purple::Debug::info($log_category, "Found twitter status $this_status_id: '$this_status_message'\n");
+		Purple::Debug::info($log_category, "created at $this_status->{'created_at'}\n");
 
 		my $emsg = do {
+			my $age = DateTime->now - $this_status->created_at;
+
 			if ($this_status_id <= 0) { 'invalid status ID' }
 			elsif (length($this_status_message) <= 1) { 'too short' }
 			elsif ($pref_ignore_replies &&
@@ -77,6 +89,8 @@ sub find_latest_tweet
 				$this_status->{'in_reply_to_status_id'} ||
 				$this_status->{'in_reply_to_screen_name'} )) { 'was a reply to someone' }
 			elsif ($pref_filter_regex && $this_status_message =~ m/$pref_filter_regex/) { 'matched the discard filter' }
+			elsif (DateTime::Duration->compare( $timeout_time, $age) == -1) 
+						{'msg to old: timeout time'}
 		};
 		if ($emsg) {
 			Purple::Debug::info($log_category, "Skipping status message: $emsg\n");
@@ -364,6 +378,11 @@ sub plugin_load
 	Purple::Prefs::set_string("$pref_root/access_pin","");
 	Purple::Prefs::set_string("$pref_root/access_url","");
 
+	# XXX
+    Purple::Prefs::add_int("$pref_root/timeout_time", 3600);
+    Purple::Prefs::add_string("$pref_root/timeout_message", 
+		"* no more info available");
+
     schedule_status_update 10;
 
 }
@@ -427,6 +446,15 @@ sub prefs_info_cb
     $ppref = Purple::PluginPref->new_with_name_and_label("$pref_root/max_statuses_to_fetch", 'Maximum statuses to request');
     $ppref->set_bounds(1, 100); # Twitter anyway doesn't return more than 20
     $frame->add($ppref);
+
+    $frame->add(Purple::PluginPref->new_with_label('Timeout'));
+
+	$ppref = Purple::PluginPref->new_with_name_and_label("$pref_root/timeout_time", 
+			'Maximum hours to use a tweet');
+	$ppref->set_bounds(1, 4000); # Twitter anyway doesn't return more than 20
+		$frame->add($ppref);
+	$frame->add(Purple::PluginPref->new_with_name_and_label("$pref_root/timeout_message",
+				'Message when no twitter messages available'));
 
     return $frame;
 }

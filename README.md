@@ -15,11 +15,11 @@ The lastest version uses `Net::Twitter::Lite`.
 An old version can be found on [launchpad](http://launchpad.net/purple-oauth-twitterstatus)
 
 # Installation
-You need the latest Net::Twitter::Lite module to get it working.
+You need the latest Net::Twitter module to get it working.
 It depends on the oauth module included in Net::Twitter since 3.00. It's been tested against libnet-twitter-perl included in debian-testing.
 If your linux doesn't support the correct version of Net::Twitter you can install it running
 
-    sudo perl -MCPAN -e 'install Net::Twitter::Lite::WithAPIv1_1'
+    sudo perl -MCPAN -e 'install Net::Twitter'
 
 If you are running windows you can try the instruction found on  
 [this issue](http://code.google.com/p/pidgin-status-to-twitter/issues/detail?id=2)
@@ -49,3 +49,4 @@ On the next check the testprogram will use those tokens to connect to twitter.
 * verify the use of the plugin name
 * redirect all launchpad stuff to this new location
 * make an easier the authentication easier.
+* better authentication system.

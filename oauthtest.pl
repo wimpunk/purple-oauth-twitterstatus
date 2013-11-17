@@ -2,10 +2,14 @@
 # based on http://log.damog.net/2009/05/twitters-oauth-perl/
 # http://stereonaut.net/index.php?s=oauth
 # use Net::Twitter::OAuth;
-#use Net::Twitter;
-use Net::Twitter::Lite::WithAPIv1_1;
+# switched back to the Net::Twitter
+use Net::Twitter;
+#use Net::Twitter::Lite::WithAPIv1_1;
 use Data::Dumper;
 use Storable;
+use DateTime;
+use Date::Parse;
+
 
 sub save_tokens {
 	$local_access_token = $_[0];
@@ -38,8 +42,9 @@ sub restore_tokens {
 		return ('','');
 	}
 }
-my $client = Net::Twitter::Lite::WithAPIv1_1->new(
-		traits         => ['API::REST','OAuth'],
+#my $client = Net::Twitter::Lite::WithAPIv1_1->new(
+my $client = Net::Twitter->new(
+		traits         => [qw/API::RESTv1_1 InflateObjects/],
 		consumer_key    => "IkU8CVvABj0ZeOQrAQDrvg",
 		consumer_secret => "kDB5lMR0VoQEbLIrbuvLD72j7XrozVgEyHP0q4csc",
 		);
@@ -93,8 +98,15 @@ if (not ( $client->authorized )) {
 eval {
 # my $statuses = $client->friends_timeline({ since_id => $high_water, count => 100 });
 	my $statuses = $client->user_timeline({ count => 10 });
+	my $timeout_time = DateTime::Duration->new( hours => 48);
 	for my $status ( @$statuses ) {
-		print "$status->{time} <$status->{user}{screen_name}> $status->{text}\n";
+		$age = DateTime->now - $status->created_at;
+
+		if (DateTime::Duration->compare( $timeout_time, $age) == -1) {
+					print('msg to old: timeout time');
+					}
+
+		print "$status->{created_at} <$status->{user}{screen_name}> $status->{text} $age\n";
 	}
 };
 if ( my $err = $@ ) {

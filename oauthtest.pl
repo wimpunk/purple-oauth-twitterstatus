@@ -3,6 +3,8 @@
 # http://stereonaut.net/index.php?s=oauth
 # use Net::Twitter::OAuth;
 # switched back to the Net::Twitter
+use strict;
+use warnings;
 use Net::Twitter;
 #use Net::Twitter::Lite::WithAPIv1_1;
 use Data::Dumper;
@@ -12,34 +14,38 @@ use Date::Parse;
 
 
 sub save_tokens {
-	$local_access_token = $_[0];
-	$local_access_secret = $_[1];
-	print("token:  $local_access_token\n");
-	print("secret: $local_access_secret\n");
-	my %access =();
-	$access{'token'} = $local_access_token; 
-	$access{'secret'} = $local_access_secret;
+
+	my %access = @_;
+	print("saving token:  $access{'token'}\n");
+	print("saving secret: $access{'secret'}\n");
 
 	print ("** saved: \n");
+## does not compute
 	warn Dumper(\%access);
-	store \%access,'token';
+# warn Dumper(\$access);
+	print ("** end dump \n");
+	store (\%access,'access');
 
 }
 
 sub restore_tokens {
 	eval {
-		my $access = retrieve('token');
+		my %access = %{ retrieve('access') };
 		print ("** restored: \n");
-		print("restored token:  %access->{'token'}\n");
-		print("restored secret: %access->{'secret'}\n");
-		print ("** dump retored access: \n");
+		print("restored token:  $access{'token'}\n");
+		print("restored secret: $access{'secret'}\n");
+		print ("** dump restored access: \n");
 
-		warn Dumper(\$access);
-	
-		return($access->{'token'},$access->{'secret'});
+	    print ("*** begin dump \n");
+		warn Dumper(\%access);
+	    print ("*** end dump \n");
+
+		return(\%access);
+
 	} or do {
-		print("No token to restore\n");
-		return ('','');
+		print("!!! Could not restore token\n");
+		my %hash = ();
+		return (\%hash);
 	}
 }
 #my $client = Net::Twitter::Lite::WithAPIv1_1->new(
@@ -50,29 +56,36 @@ my $client = Net::Twitter->new(
 		);
 
 # we should not restore if the file isn't there
-my ($access_token, $access_token_secret) = restore_tokens();
+my ($access) = restore_tokens();
+#my $access = {};
 
-if ($access_token && $access_token_secret) {
+print("--- access ---\n");
+warn Dumper($access);
+print("----------\n");
+
+if ($access->{'token'}) {
 	print("restored\n");
-	print("access_token: $access_token\n");
-	print("access_token_secret: $access_token_secret\n");
-	$client->access_token($access_token);
-	$client->access_token_secret($access_token_secret);
+	print("access_token: $access->{'token'}\n");
+	print("access_token_secret: $access->{'secret'}");
+
+	$client->access_token($access->{'token'});
+	$client->access_token_secret($access->{'secret'});
 }
 
+
 # reading pin
-$data_file="pin";
+my $data_file="pin";
 my $newpin = "";
 if (open(DAT, $data_file)){
-	@raw_data=<DAT>;
+	my @raw_data=<DAT>;
 	close(DAT);
 
-	foreach $pin (@raw_data)
+	foreach my $pin (@raw_data)
 	{
 		chomp($pin);
 		print "pin: $pin\n";
 		$newpin = $pin;
-		break;
+		last;
 	}
 
 # my $newpin = $pin;
@@ -81,26 +94,26 @@ if (open(DAT, $data_file)){
 
 if (not ( $client->authorized )) {
 # The client is not yet authorized: Do it now
-	print "Authorize this app at ", $client->get_authorization_url, " and hit RET\n";
+	print "Authorize this app at ", $client->get_authorization_url, ", enter the pin and hit RET\n";
 
 	$newpin = <STDIN>; # wait for input
 		chomp($newpin);
 
-	my($access_token, $access_token_secret) = 
+	my %access;
+	($access{'token'}, $access{'secret'}) = 
 		$client->request_access_token(verifier => $newpin);
-    save_tokens($access_token, $access_token_secret); # if necessary
-	print("access_token: $access_token\n");
-	print("access_token_secret: $access_token_secret\n");
+    save_tokens(%access); # if necessary
+	print("access_token: $access{'token'}\n");
+	print("access_token_secret: $access{'secret'}\n");
 }
 # my $res = $client->update({ status => 'me ownz oauth!!1' });
 
-
 eval {
 # my $statuses = $client->friends_timeline({ since_id => $high_water, count => 100 });
-	my $statuses = $client->user_timeline({ count => 10 });
+	my $statuses = $client->user_timeline({ count => 1 });
 	my $timeout_time = DateTime::Duration->new( hours => 48);
 	for my $status ( @$statuses ) {
-		$age = DateTime->now - $status->created_at;
+		my $age = DateTime->now - $status->created_at;
 
 		if (DateTime::Duration->compare( $timeout_time, $age) == -1) {
 					print('msg to old: timeout time');

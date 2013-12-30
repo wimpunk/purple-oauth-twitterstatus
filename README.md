@@ -12,6 +12,7 @@ plugin needed a public profile.  Using oauth prevents the need of a public profi
 # Download
 The latest version can be downloaded by pressing the zip-button or you can try [this link](../../archive/master.zip)
 The lastest version uses `Net::Twitter::Lite`.
+The latest release is r0.4.3 which can be found on [release 0.4.3](../../releases/tag/0.4.3)
 An old version can be found on [launchpad](http://launchpad.net/purple-oauth-twitterstatus)
 
 # Installation

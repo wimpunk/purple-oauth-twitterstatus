@@ -18,7 +18,7 @@ use warnings;
 our %PLUGIN_INFO = (
     perl_api_version => 2,
     name => 'Twitter Oauth Status',
-    version => '0.4.3',
+    version => '0.4.4',
     summary => 'Use a Twitter feed as your status message.',
     description => 'Use a Twitter feed as your status message.  '
 		. 'Based on the twitter status update from '

@@ -44,6 +44,7 @@ my $client = Net::Twitter->new(
 		traits          => [qw/API::RESTv1_1 InflateObjects/],
 		consumer_key    => "IkU8CVvABj0ZeOQrAQDrvg",
 		consumer_secret => "kDB5lMR0VoQEbLIrbuvLD72j7XrozVgEyHP0q4csc",
+		ssl                 => 1,
 		);
 #End Global Variables
 

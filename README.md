@@ -17,7 +17,7 @@ An old version can be found on [launchpad](http://launchpad.net/purple-oauth-twi
 
 # Installation
 You need the latest Net::Twitter module to get it working.
-It depends on the oauth module included in Net::Twitter since 3.00. It's been tested against libnet-twitter-perl included in debian-testing.
+It depends on the oauth module included in Net::Twitter since 3.00. It's been tested against libnet-twitter-perl included in debian-testing.  On Ubuntu you can run `apt-get install libnet-twitter-perl` to install the module.
 If your linux doesn't support the correct version of Net::Twitter you can install it running
 
     sudo perl -MCPAN -e 'install Net::Twitter'
